@@ -14,9 +14,7 @@ dynamodb_client = boto3.client('dynamodb')
 dynamodb_resource = boto3.resource('dynamodb')
 
 def lambda_handler(event, context):
-    """ Check to see whether a DynamoDB table already exists.  If not, create it.  This table is used to keep a record of
-    instances that have been created along with their attributes.  This is necessary because when you terminate an instance
-    its attributes are no longer available, so they have to be fetched from the table."""
+    # Check if DynamoDB table exists. If not, create it
     tables = dynamodb_client.list_tables()
     if 'DDNS' in tables['TableNames']:
         print 'DynamoDB table already exists'
@@ -102,14 +100,14 @@ def lambda_handler(event, context):
     else:
         print 'DNS support disabled for %s.  You have to enabled DNS support to use Route 53 private hosted zones.' % vpc_id
 
-    # Create the public and private hosted zone collections.  These are collections of zones in Route 53.
+    # Create the public and private hosted zone collections. These are collections of zones in Route 53.
     hosted_zones = route53.list_hosted_zones()
     private_hosted_zones = filter(lambda x: x['Config']['PrivateZone'] is True, hosted_zones['HostedZones'])
     private_hosted_zone_collection = map(lambda x: x['Name'], private_hosted_zones)
     public_hosted_zones = filter(lambda x: x['Config']['PrivateZone'] is False, hosted_zones['HostedZones'])
     public_hosted_zones_collection = map(lambda x: x['Name'], public_hosted_zones)
     # Check to see whether a reverse lookup zone for the instance already exists.  If it does, check to see whether
-    # the reverse lookup zone is associated with the instance's VPC.  If it isn't create the association.  You don't
+    # the reverse lookup zone   is associated with the instance's VPC.  If it isn't create the association.  You don't
     # need to do this when you create the reverse lookup zone because the association is done automatically.
     if filter(lambda record: record['Name'] == reversed_lookup_zone, hosted_zones['HostedZones']):
         print 'Reverse lookup zone found:', reversed_lookup_zone
@@ -255,12 +253,15 @@ def lambda_handler(event, context):
                     create_resource_record(reverse_lookup_zone_id, reversed_ip_address, 'in-addr.arpa', 'PTR', private_dns_name)
                 except BaseException as e:
                     print e
-            else:
+            elif state == "terminated"
                 try:
                     delete_resource_record(private_hosted_zone_id, private_host_name, private_hosted_zone_name, 'A', private_ip)
                     delete_resource_record(reverse_lookup_zone_id, reversed_ip_address, 'in-addr.arpa', 'PTR', private_dns_name)
                 except BaseException as e:
                     print e
+            else :
+                print "Current Instance State : %s" % state
+
         else:
             print 'No matching zone for %s' % configuration[0]
 
