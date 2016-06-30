@@ -155,12 +155,14 @@ def lambda_handler(event, context):
                             create_resource_record(reverse_lookup_zone_id, reversed_ip_address, 'in-addr.arpa', 'PTR', private_dns_name)
                         except BaseException as e:
                             print e
-                    else:
+                    elif state == "terminated":
                         try:
                             delete_resource_record(private_hosted_zone_id, private_host_name, private_hosted_zone_name, 'A', private_ip)
                             delete_resource_record(reverse_lookup_zone_id, reversed_ip_address, 'in-addr.arpa', 'PTR', private_dns_name)
                         except BaseException as e:
                             print e
+                    else:
+                        print "Current Instance State %s " % state
                     # create PTR record
                 elif tag.get('Value').lstrip().lower() in public_hosted_zones_collection:
                     print 'Public zone found', tag.get('Value')
@@ -172,11 +174,13 @@ def lambda_handler(event, context):
                             create_resource_record(public_hosted_zone_id, public_host_name, public_hosted_zone_name, 'A', public_ip)
                         except BaseException as e:
                             print e
-                    else:
+                    elif state == 'terminated':
                         try:
                             delete_resource_record(public_hosted_zone_id, public_host_name, public_hosted_zone_name, 'A', public_ip)
                         except BaseException as e:
                             print e
+                    else:
+                        print "Current Instance State : %s " % state
                 else:
                     print 'No matching zone found for %s' % tag.get('Value')
             else:
@@ -200,11 +204,13 @@ def lambda_handler(event, context):
                                     create_resource_record(cname_private_hosted_zone_id, cname_host_name, cname_private_hosted_zone, 'CNAME', private_dns_name)
                                 except BaseException as e:
                                     print e
-                            else:
+                            elif state == 'terminated':
                                 try:
                                     delete_resource_record(cname_private_hosted_zone_id, cname_host_name, cname_private_hosted_zone, 'CNAME', private_dns_name)
                                 except BaseException as e:
                                     print e
+                            else:
+                                print "Current Instance State : %s " % state
                 for cname_public_hosted_zone in public_hosted_zones_collection:
                     if cname.endswith(cname_public_hosted_zone):
                         cname_public_hosted_zone_id = get_zone_id(cname_public_hosted_zone)
@@ -214,11 +220,13 @@ def lambda_handler(event, context):
                                 create_resource_record(cname_public_hosted_zone_id, cname_host_name, cname_public_hosted_zone, 'CNAME', public_dns_name)
                             except BaseException as e:
                                 print e
-                        else:
+                        elif state == 'terminated':
                             try:
                                 delete_resource_record(cname_public_hosted_zone_id, cname_host_name, cname_public_hosted_zone, 'CNAME', public_dns_name)
                             except BaseException as e:
                                 print e
+                        else:
+                            print "Current Instance State : %s" % state
     # Is there a DHCP option set?
     # Get DHCP option set configuration
     try:
@@ -253,7 +261,7 @@ def lambda_handler(event, context):
                     create_resource_record(reverse_lookup_zone_id, reversed_ip_address, 'in-addr.arpa', 'PTR', private_dns_name)
                 except BaseException as e:
                     print e
-            elif state == "terminated"
+            elif state == 'terminated'
                 try:
                     delete_resource_record(private_hosted_zone_id, private_host_name, private_hosted_zone_name, 'A', private_ip)
                     delete_resource_record(reverse_lookup_zone_id, reversed_ip_address, 'in-addr.arpa', 'PTR', private_dns_name)
